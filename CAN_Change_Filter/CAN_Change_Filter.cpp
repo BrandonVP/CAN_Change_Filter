@@ -1,6 +1,11 @@
+/*
+ Name:		CAN_Change_Filter.ino
+ Created:	6/18/2021 1:15:46 PM
+ Author:	Brandon Van Pelt
+*/
+
+// Disable Visual Studio's deprecated code warning
 #define _CRT_SECURE_NO_WARNINGS
-// CAN_Change_Filter.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
 
 #include <algorithm>
 #include <iostream>
@@ -11,7 +16,7 @@
 #include <string>
 
 /*=========================================================
-    END DEBUGGING
+    START DEBUGGING
 ===========================================================*/
 //#define DEBUG_FINDIDS
 #define DEVMODE
@@ -20,12 +25,9 @@
     END DEBUGGING
 ===========================================================*/
 
-#define MAXLINE 200 
 #define MAX_STRING_LENGTH 100
 
 using namespace std;
-
-list<int> IDBuffer;
 
 typedef struct
 {
@@ -37,12 +39,15 @@ typedef struct
 } CANMSG;
 
 CANMSG buffer;
+list<int> IDBuffer;
 
+// Returns true if id is already in the list
 bool isIDInList(int id)
 {
     return std::find(IDBuffer.begin(), IDBuffer.end(), id) != IDBuffer.end();
 }
 
+// Find all unique IDs and add them to list
 int findIDs(char* filename)
 {
     FILE* ptr = fopen(filename, "r");
@@ -82,7 +87,7 @@ int findIDs(char* filename)
     }
 }
 
-// Find the length of a file
+// Find the length of the text file
 int fileLength(char* filename) {
     int line_count = 0;
     FILE* fp;
@@ -99,7 +104,7 @@ int fileLength(char* filename) {
     return line_count;
 }
 
-// Call with false if you just want count
+// Call with false if you only want the count of unique IDs
 int printIDList(bool printMe = true)
 {
     int count = 0;
@@ -116,7 +121,7 @@ int printIDList(bool printMe = true)
     return count;
 }
 
-
+// Work in progress
 int XORData(char* filename, int id)
 {
     FILE* ptr = fopen(filename, "r");
@@ -148,6 +153,7 @@ int XORData(char* filename, int id)
     }
 }
 
+// Start the XOR(^) process
 void startXOR(char* filename)
 {
     for (int id : IDBuffer)
@@ -157,7 +163,7 @@ void startXOR(char* filename)
     }
 }
 
-// XOR: ^
+// Call with filename to filter
 int main(int argc, char* argv[])
 {
 #if defined DEVMODE
