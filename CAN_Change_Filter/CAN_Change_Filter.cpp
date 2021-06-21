@@ -10,7 +10,16 @@
 #include <stdlib.h> 
 #include <string>
 
-#define MAXLINE 250 //every line with end with \n 
+/*=========================================================
+    START DEBUGGING
+===========================================================*/
+//#define DEBUG_FINDIDS
+#define DEVMODE
+#define DEBUG_XOR
+/*=========================================================
+    END DEBUGGING
+===========================================================*/
+
 #define MAX_STRING_LENGTH 100
 using namespace std;
 
@@ -25,12 +34,17 @@ typedef struct
     int data[8];
 }CANMSG;
 
-int inputLine(FILE* fp, CANMSG e)
+CANMSG buffer;
+list<int> IDBuffer;
+
+// Returns true if id is already in the list
+bool isIDInList(int id)
 {
     return 1;
 }
 
-void parseFile(FILE* fptr, char* delimiter) 
+// Find all unique IDs and add them to list
+int findIDs(char* filename)
 {
     char buffer[MAXLINE] = { 0 };
     char* linestatus = NULL;
@@ -99,6 +113,7 @@ bool isIDInList(int id)
     }
 }
 
+// Find the length of the text file
 int fileLength(char* filename) {
     int line_count = 0;
     FILE* fp;
@@ -117,13 +132,26 @@ int fileLength(char* filename) {
     return line_count;
 }
 
-int main(int argc, char* argv[])
+// Call with false if you only want the count of unique IDs
+int printIDList(bool printMe = true)
 {
     CANMSG buffer;
     char filename[] = "AutoStopStart01.txt";
 
-    printf("File length: %d\n", fileLength(filename));
-   
+    for (int x : IDBuffer)
+    {
+        if (printMe)
+        {
+            printf("%x\n", x);
+        }
+        count++;
+    }
+    return count;
+}
+
+// Work in progress
+int XORData(char* filename, int id)
+{
     FILE* ptr = fopen(filename, "r");
     if (ptr == NULL)
     {
@@ -149,8 +177,31 @@ int main(int argc, char* argv[])
     }
     IDBuffer.sort();
 
-    for (int x : IDBuffer)
+// Start the XOR(^) process
+void startXOR(char* filename)
+{
+    for (int id : IDBuffer)
     {
-        printf("%x\n", x);
+        printf("XOR ID: %x\n ", id);
+        XORData(filename, id);
     }
+}
+
+// Call with filename to filter
+int main(int argc, char* argv[])
+{
+#if defined DEVMODE
+    char filename[] = "AutoStopStart01.txt";
+#else 
+    char filename[] = argv[1];
+#endif
+    
+    printf("File length: %d\n", fileLength(filename));
+
+    findIDs(filename);
+
+    printf("Unique IDs: %d\n", printIDList(false));
+    
+    startXOR(filename);
+
 }
