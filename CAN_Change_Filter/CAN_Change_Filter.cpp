@@ -122,7 +122,7 @@ int printIDList(bool printMe = true)
     return count;
 }
 
-// 
+// XOR data n and n + 1 - OR results
 void XORData(char* filename, int id)
 {
     int OR_Data[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
