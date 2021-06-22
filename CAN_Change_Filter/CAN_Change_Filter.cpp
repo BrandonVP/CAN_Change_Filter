@@ -116,7 +116,7 @@ int printIDList(bool printMe = true)
         if (printMe)
         {
             printf("%03x\n", x);
-        }
+        } 
         count++;
     }
     return count;
