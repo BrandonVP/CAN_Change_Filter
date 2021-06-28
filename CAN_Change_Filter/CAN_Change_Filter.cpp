@@ -19,6 +19,7 @@
     START DEBUGGING
 ===========================================================*/
 //#define DEBUG_FINDIDS // Useful if changing file read format
+#define DLC_HAS_PADDING
 #define DEVMODE
 /*=========================================================
     END DEBUGGING
@@ -58,22 +59,24 @@ int findIDs(char* filename)
         printf("no such file.");
         return 0;
     }
-
+    char temp1[20];
+    char temp2[20];
     // Msg Num, Time, ID, Length
-    while (fscanf(ptr, "%*s %*s %x %d", &buffer.id, &buffer.length) != EOF)
+    while (fscanf(ptr, "%s %s %x %d", &temp1, &temp2, &buffer.id, &buffer.length) != EOF)
     {
 
 #if defined DEBUG_FINDIDS
-        printf("%x\n", buffer.id);
+        printf("%s, %s, %04x   ", temp1, temp2, buffer.id);
 #endif
 
         // Determine length and loop the the data array, an array shorter than 8 is padded with zeros
         for (int i = 0; i < 8; i++)
         {
-            (i < buffer.length) ? (fscanf(ptr, "%x", &buffer.data[i])) : (buffer.data[i] = 0);
+            fscanf(ptr, "%x", &buffer.data[i]);
+            //(i < buffer.length) ? (fscanf(ptr, "%x", &buffer.data[i])) : (buffer.data[i] = 0);
 
 #if defined DEBUG_FINDIDS
-            printf("%x ", buffer.data[i]);
+            printf("%02x ", buffer.data[i]);
 #endif
         }
 #if defined DEBUG_FINDIDS
@@ -258,11 +261,58 @@ int findChange(char* filename, int id, int arrayPos)
     printf("Count: %d\n", count);
 }
 
+
+char hexDigit(unsigned n)
+{
+    if (n < 10) {
+        return n + '0';
+    }
+    else {
+        return (n - 10) + 'A';
+    }
+}
+
+
+void convertASCII(char* filename)
+{
+    FILE* ptr = fopen(filename, "r");
+    if (ptr == NULL)
+    {
+        printf("no such file.");
+    }
+    char temp1[20];
+    char temp2[20];
+    // Msg Num, Time, ID, Length
+    while (fscanf(ptr, "%s %s %x %d", &temp1, &temp2, &buffer.id, &buffer.length) != EOF)
+    {
+        // Determine length and loop the the data array, an array shorter than 8 is padded with zeros
+        for (int i = 0; i < 8; i++)
+        {
+#if defined DLC_HAS_PADDING
+            (i < buffer.length) ? (fscanf(ptr, "%x", &buffer.data[i])) : (buffer.data[i] = 0);
+#else
+            if (buffer.data[0] == 0x20 && buffer.data[1] == 0x1 && ( i == 3 || i == 5 || i == 7 ))
+#endif
+            if (( i == 3 || i == 5 || i == 7 ))
+            {
+                char temp = hexDigit(buffer.data[i]);
+                printf("%c", buffer.data[i]);
+            }
+        }
+        if (buffer.data[0] == 0)
+        {
+            printf("\n");
+        }
+    }
+}
+
+
 // Call with filename to filter
 int main(int argc, char* argv[])
 {
 #if defined DEVMODE
-    char filename[] = "AutoStopStart01.txt";
+    char filename[] = "scanN.txt";
+    //char filename[] = "AutoStopStart01.txt";
 #else 
     char filename[] = argv[1];
 #endif
@@ -271,9 +321,11 @@ int main(int argc, char* argv[])
 
     findIDs(filename);
 
-    printf("Unique IDs: %d\n", printIDList(false));
+    printf("Unique IDs: %d\n", printIDList(true));
 
     startXOR(filename);
 
     printFilteredIDBuffer();
+
+    //convertASCII(filename);
 }
