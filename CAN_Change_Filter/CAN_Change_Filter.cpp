@@ -16,14 +16,32 @@
 #include <string>
 
 /*=========================================================
-    START DEBUGGING
+    SETTINGS
 ===========================================================*/
-//#define DEBUG_FINDIDS // Useful if changing file read format
-#define DLC_HAS_PADDING
+// Switches between hardwired filename to CMD argv[1] filename
 #define DEVMODE
+
+// Useful if changing file read format
+//#define DEBUG_FINDIDS 
+
+// Use if frames were padded with zeros
+#define DLC_HAS_PADDING
 /*=========================================================
-    END DEBUGGING
+    SETTINGS
 ===========================================================*/
+
+/*=========================================================
+    INPUT FORMAT
+===========================================================
+    Message   Time     ID
+    Number    Offset   [hex]  Data Length
+    |         [ms]     |      |  Data[hex] ...
+    |         |        |      |  |
+ ---+---------+--------+------+--+- -- -- -- -- -- -- --
+   1133    782.434   0137     8  00 00 00 00 00 00 00 80
+===========================================================
+    INPUT FORMAT
+=========================================================*/
 
 #define MAX_STRING_LENGTH 100
 
@@ -82,8 +100,6 @@ int findIDs(char* filename)
 #if defined DEBUG_FINDIDS
         printf("\n");
 #endif
-
-        // Add id to list if not already
         if (!isIDInList(buffer.id))
         {
             IDBuffer.push_back(buffer.id);
@@ -262,7 +278,7 @@ int findChange(char* filename, int id, int arrayPos)
 }
 
 
-char hexDigit(unsigned n)
+char hexToASCII(unsigned n)
 {
     if (n < 10) {
         return n + '0';
@@ -272,7 +288,7 @@ char hexDigit(unsigned n)
     }
 }
 
-
+// Useful to find ascii text messages in file
 void convertASCII(char* filename)
 {
     FILE* ptr = fopen(filename, "r");
@@ -295,7 +311,7 @@ void convertASCII(char* filename)
 #endif
             if (( i == 3 || i == 5 || i == 7 ))
             {
-                char temp = hexDigit(buffer.data[i]);
+                char temp = hexToASCII(buffer.data[i]);
                 printf("%c", buffer.data[i]);
             }
         }
@@ -311,7 +327,7 @@ void convertASCII(char* filename)
 int main(int argc, char* argv[])
 {
 #if defined DEVMODE
-    char filename[] = "scanN.txt";
+    char filename[] = "GMC_Auto_4.txt";
     //char filename[] = "AutoStopStart01.txt";
 #else 
     char filename[] = argv[1];
