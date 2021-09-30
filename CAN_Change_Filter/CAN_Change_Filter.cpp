@@ -107,6 +107,46 @@ int findIDs(char* filename)
     }
 }
 
+int countIDUse(int x, char* filename)
+{
+    int count = 0;
+
+    FILE* ptr = fopen(filename, "r");
+    if (ptr == NULL)
+    {
+        printf("no such file.");
+        return 0;
+    }
+    char temp1[20];
+    char temp2[20];
+    // Msg Num, Time, ID, Length
+    while (fscanf(ptr, "%s %s %x %d", &temp1, &temp2, &buffer.id, &buffer.length) != EOF)
+    {
+
+        // Determine length and loop the the data array, an array shorter than 8 is padded with zeros
+        for (int i = 0; i < 8; i++)
+        {
+            fscanf(ptr, "%x", &buffer.data[i]);
+        }
+        if (buffer.id == x)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+void idQuantity(char* filename)
+{
+    IDBuffer.sort();
+
+    for (int x : IDBuffer)
+    {
+        int use = countIDUse(x, filename);
+        printf("%03x : %d\n", x, use);
+    }
+}
+
 // Find the length of the text file
 int fileLength(char* filename) {
     int line_count = 0;
@@ -327,7 +367,7 @@ void convertASCII(char* filename)
 int main(int argc, char* argv[])
 {
 #if defined DEVMODE
-    char filename[] = "GMC_Auto_4.txt";
+    char filename[] = "longAFM_filtered.txt";
     //char filename[] = "AutoStopStart01.txt";
 #else 
     char filename[] = argv[1];
@@ -339,6 +379,7 @@ int main(int argc, char* argv[])
 
     printf("Unique IDs: %d\n", printIDList(true));
 
+    idQuantity(filename);
     startXOR(filename);
 
     printFilteredIDBuffer();
