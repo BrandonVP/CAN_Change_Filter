@@ -117,12 +117,13 @@ int countIDUse(int x, char* filename)
         printf("no such file.");
         return 0;
     }
+
     char temp1[20];
     char temp2[20];
+
     // Msg Num, Time, ID, Length
     while (fscanf(ptr, "%s %s %x %d", &temp1, &temp2, &buffer.id, &buffer.length) != EOF)
     {
-
         // Determine length and loop the the data array, an array shorter than 8 is padded with zeros
         for (int i = 0; i < 8; i++)
         {
@@ -158,7 +159,8 @@ int fileLength(char* filename) {
         return -1;
     }
     // Counts lines until a NULL is found
-    while (fgets(str, MAX_STRING_LENGTH, fp) != NULL) {
+    while (fgets(str, MAX_STRING_LENGTH, fp) != NULL) 
+    {
         line_count++;
     }
     return line_count;
@@ -191,8 +193,8 @@ void XORData(char* filename, int id)
     bool firstTime = true;
     bool pushID = false;
     bool printResult = false;
-
     FILE* ptr = fopen(filename, "r");
+
     if (ptr == NULL)
     {
         printf("no such file.");
@@ -269,6 +271,7 @@ void startXOR(char* filename)
 void printFilteredIDBuffer()
 {
     int count = 0;
+
     printf("IDs with 1 bit difference:\n");
     for (int x : filteredIDBuffer)
     {
@@ -284,8 +287,8 @@ int findChange(char* filename, int id, int arrayPos)
     int count = 0;
     bool firstTime = true;
     int temp = 0;
-
     FILE* ptr = fopen(filename, "r");
+    
     if (ptr == NULL)
     {
         printf("no such file.");
@@ -298,7 +301,6 @@ int findChange(char* filename, int id, int arrayPos)
         {
             (i < buffer.length) ? (fscanf(ptr, "%x", &buffer.data[i])) : (buffer.data[i] = 0);
         }
-
         if (buffer.id == id && firstTime)
         {
             temp = buffer.data[arrayPos];
@@ -317,7 +319,7 @@ int findChange(char* filename, int id, int arrayPos)
     printf("Count: %d\n", count);
 }
 
-
+//
 char hexToASCII(unsigned n)
 {
     if (n < 10) {
@@ -361,7 +363,6 @@ void convertASCII(char* filename)
         }
     }
 }
-
 
 // Call with filename to filter
 int main(int argc, char* argv[])
